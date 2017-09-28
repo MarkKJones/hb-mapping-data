@@ -4,9 +4,20 @@ HB mapping data
 A variety of mapping data was taken for HB by Eric Sun, Steve Lassiter 
 and Mike Fowler from roughly Dec 2015-Mar 2016.
 
+The HB at this time did not have the front clamp and extra side iron which was added later to reduce the
+stray fields.
+
+TOSCA calculations were taken from the spreadsheets.
+
+On Sept 27, 2017, Steve Lassiter did TOSCA calculations with model HB-AB which is the configuration at the time
+of the Dec 2015-Mar 2016. Steve also did TOSCA calculations with model HB-V10 which is the configuration with addition iron
+and front field clamp.
+
 ## Hall Probe info
 
-  * A Lakeshore probe Lakeshore-XHGT-9060-55937-Q1 was used for the measurements.
+  * A Lakeshore probe Lakeshore-XHGT-9060-55937-Q1 was used for the measurements. This probe is now in Q1.
+  The present probe in HB is Lakeshore-XHGT-9060-55587-strayfield-presently-in-HB.pdf which
+  was also used for the stray field measurements.
   * The probe correction table is in Lakeshore-XHGT-9060-55937-Q1.pdf .
   * The data from the table has been put in file: Lakeshore-probe.dat
   * This linearity error is different for positive and negative field directions. 
@@ -66,18 +77,18 @@ for  negative  currents with the current ramped up
 and the down. Then data was taken with negative current ramping up and the magnet quenched.
 Then data was taking for the magnet with positive current and ramping the up and down.
 
-  *The results are in file: hysteresis curve 2-26-16 Pos-Neg.xlsx
-  *The data was extracted for the positive current ramp up: pos-up-current.dat
-  *The data was extracted for the positive current ramp down: pos-down-current.dat
-  *The data was extracted for the negative current ramp up: neg-up-current.dat
-  *The data was extracted for the negative current ramp down: neg-down-current.dat
+  * The results are in file: hysteresis curve 2-26-16 Pos-Neg.xlsx
+  * The data was extracted for the positive current ramp up: pos-up-current.dat
+  * The data was extracted for the positive current ramp down: pos-down-current.dat
+  * The data was extracted for the negative current ramp up: neg-up-current.dat
+  * The data was extracted for the negative current ramp down: neg-down-current.dat
 
 ### Data taken with Rig 2 at points along Z for different central fields at 5 XY locations with negative polarity .
 
 Data taken at 3899.35 +/- 0.15A, 3499.50 +/- 0.15A, 2999.65 +/- 0.15A and 1999.90 +/- 0.15A
 
-  *The results are in file: Mapping Central Field 2000-3900a Neg.xls
-  *Extracted data for each current and hole ( hole==XY location) in files: Central_zcan/central_zscan_{current}a_hole#.dat
+  * The results are in file: Mapping Central Field 2000-3900a Neg.xls
+  * Extracted data for each current and hole ( hole==XY location) in files: Central_zcan/central_zscan_{current}a_hole#.dat
 
 ### Root Code to analyze spreadsheet data
 Root script plot_routines.C the following routines:
@@ -105,7 +116,7 @@ Root script plot_routines.C the following routines:
    * Call plot_zscan which corrects the data for the probe non-linearity and then plots the data and tosca.
    * Calculates the integral, max and effective field length for data and TOSCA. Prints them to screen.
    * Results saved to file Central_zscan_files/central_zscan_neg_results.dat
-9.  void plot_zscan_results()
+9. void plot_zscan_results()
    * Reads in Central_zscan_files/central_zscan_neg_results.dat
    * Reads in Central_zscan_files/central_zscan_pos_results.dat
    * Reads in Central_zscan_files/tosca_HB-AB-cases.dat  
