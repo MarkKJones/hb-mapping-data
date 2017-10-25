@@ -58,6 +58,105 @@ void run_plot_zscan(TString current, TString nhole) {
   HB_central_zscan_tosca.clear();
 }
 //
+void plot_zscan_hole() {
+   Int_t colh;
+   vector<double> tosca_int;
+   vector<double>  tosca_max;
+   vector<double>  tosca_effl;
+   vector<double>  data_int;
+   vector<double>  data_max;
+   vector<double>  data_effl;
+   vector<double>  rat_int;
+   vector<double>  rat_max;
+   vector<double>  rat_effl;
+   vector<double>  cur;
+  Float_t col1,col2,col3,col4,col5;
+   TString dnegfile="Central_zscan_files/central_zscan_neg_results.dat";
+   TTree *T1 = new TTree("ntuple","data");
+   Long64_t nlines = T1->ReadFile(dnegfile,"col1:colh/I:col2/F:col3:col4:col5",' ');
+    T1->SetBranchAddress("col1",&col1);
+    T1->SetBranchAddress("colh",&colh);
+   T1->SetBranchAddress("col2",&col2);
+   T1->SetBranchAddress("col3",&col3);
+   T1->SetBranchAddress("col4",&col4);
+   T1->SetBranchAddress("col5",&col5);
+   TGraph *gr_rat_int[5];
+   TGraph *gr_data_int[5];
+      TGraph *gr_tosca_int[5];
+   TGraph *gr_rat_max[5];
+   TGraph *gr_data_max[5];
+      TGraph *gr_tosca_max[5];
+   TGraph *gr_rat_effl[5];
+   TGraph *gr_data_effl[5];
+      TGraph *gr_tosca_effl[5];
+   for (Int_t nh = 1; nh <6;nh++) {
+   for (Int_t i = 0; i <nlines;i++) {
+     T1->GetEntry(i);
+     if (colh ==nh) {
+     cout << col1 << " "  << colh << " "  << col2/col1  << " "  << col3 << " "  << col4 << " "  << col5 << " " << endl; 
+     cur.push_back(col1);
+     data_max.push_back(TMath::Abs(col2/col1));
+     data_int.push_back(TMath::Abs(col3/col1));
+     data_effl.push_back(TMath::Abs(col3/col2)*100.);
+     tosca_max.push_back(TMath::Abs(col4/col1));
+     tosca_int.push_back(TMath::Abs(col5/col1));
+     tosca_effl.push_back(TMath::Abs(col5/col4)*100.);
+     rat_int.push_back(TMath::Abs(col3/col5));
+     rat_max.push_back(TMath::Abs(col2/col4));
+     rat_effl.push_back(TMath::Abs(col3/col2/(col5/col4)));
+     }
+     cout << cur.size() << endl;
+     gr_rat_int[nh-1] = new TGraph(cur.size(),&(cur[0]),&(rat_int[0]));  
+     gr_data_int[nh-1] = new TGraph(cur.size(),&(cur[0]),&(data_int[0])); 
+     gr_tosca_int[nh-1] = new TGraph(cur.size(),&(cur[0]),&(tosca_int[0])); 
+     gr_rat_effl[nh-1] = new TGraph(cur.size(),&(cur[0]),&(rat_effl[0]));  
+     gr_data_effl[nh-1] = new TGraph(cur.size(),&(cur[0]),&(data_effl[0])); 
+     gr_tosca_effl[nh-1] = new TGraph(cur.size(),&(cur[0]),&(tosca_effl[0])); 
+     gr_rat_max[nh-1] = new TGraph(cur.size(),&(cur[0]),&(rat_max[0]));  
+     gr_data_max[nh-1] = new TGraph(cur.size(),&(cur[0]),&(data_max[0])); 
+     gr_tosca_max[nh-1] = new TGraph(cur.size(),&(cur[0]),&(tosca_max[0])); 
+     cur.clear();
+     data_max.clear();
+     data_int.clear();
+     data_effl.clear();
+     tosca_max.clear();
+     tosca_int.clear();
+     tosca_effl.clear();
+     rat_int.clear();
+     rat_max.clear();
+     rat_effl.clear();
+   }
+   }
+      T1->Delete();
+ //
+ gROOT->Reset();
+ gStyle->SetOptStat(0);
+ gStyle->SetOptFit(11);
+ gStyle->SetTitleOffset(1.5,"Y");
+ gStyle->SetTitleOffset(.8,"X");
+ gStyle->SetLabelSize(0.04,"XY");
+ gStyle->SetTitleSize(0.06,"XY");
+ gStyle->SetPadLeftMargin(0.1);
+    TMultiGraph *mg_int = new TMultiGraph();
+ TLegend *leg_int = new TLegend(.3,.2,.66,.4);
+ TCanvas *can = new TCanvas("can","Int Bdl ",800,800);
+   can->Divide(1,2);
+   for (Int_t nh = 1; nh <6;nh++) {
+       leg_int->AddEntry(gr_data_int[nh-1],Form(" hole %d",nh),"p");
+       mg_int->Add(gr_data_int[nh-1]);  
+       gr_data_int[nh-1]->SetMarkerStyle(22);
+       gr_data_int[nh-1]->SetMarkerSize(1.5);
+       gr_data_int[nh-1]->SetMarkerColor(nh);
+   }
+ TString htitle="HB Integral Bdl/Current";
+ mg_int->Draw("AP");
+ mg_int->SetTitle(htitle);
+ mg_int->GetXaxis()->SetTitle("Current");
+ mg_int->GetYaxis()->SetTitle("Int Bdl/I (Tm/I)");
+ leg_int->Draw();
+   //
+}
+//
 void plot_tosca_comparison() {
  gROOT->Reset();
  gStyle->SetOptStat(0);
@@ -110,8 +209,8 @@ Long64_t nlines = T2->ReadFile("Central_zscan_files/tosca_HB-AB-cases.dat","col1
    }
     T3->Delete();
 //
-    for (Int_t i = 0; i <HB_AB_cur.size();i++) {
-    for (Int_t j = 0; j <HB_V10_cur.size();j++) {
+    for (UInt_t i = 0; i <HB_AB_cur.size();i++) {
+    for (UInt_t j = 0; j <HB_V10_cur.size();j++) {
       if (HB_AB_cur[i] == HB_V10_cur[j]) {
      tosca_rat_cur.push_back(HB_V10_cur[j]);
      tosca_rat_max.push_back(HB_V10_tosca_max[j]/HB_AB_tosca_max[i]);
@@ -126,6 +225,8 @@ Long64_t nlines = T2->ReadFile("Central_zscan_files/tosca_HB-AB-cases.dat","col1
    can->Divide(1,3);
     TGraph *gr_HB_AB_tosca_int = new TGraph(HB_AB_cur.size(),&(HB_AB_cur[0]),&(HB_AB_tosca_int[0]));
     TGraph *gr_HB_V10_tosca_int = new TGraph(HB_V10_cur.size(),&(HB_V10_cur[0]),&(HB_V10_tosca_int[0]));
+    TF1 *fit_V10_tosca_int;
+    gr_HB_V10_tosca_int->Fit("pol2","","",0,4000);
     TGraph *gr_HB_AB_tosca_max = new TGraph(HB_AB_cur.size(),&(HB_AB_cur[0]),&(HB_AB_tosca_max[0]));
     TGraph *gr_HB_V10_tosca_max = new TGraph(HB_V10_cur.size(),&(HB_V10_cur[0]),&(HB_V10_tosca_max[0]));
     TGraph *gr_HB_AB_tosca_effl = new TGraph(HB_AB_cur.size(),&(HB_AB_cur[0]),&(HB_AB_tosca_effl[0]));
@@ -164,6 +265,7 @@ Long64_t nlines = T2->ReadFile("Central_zscan_files/tosca_HB-AB-cases.dat","col1
  gr_HB_V10_tosca_max->SetMarkerStyle(21);
  gr_HB_V10_tosca_max->SetMarkerSize(1.5);
  gr_HB_V10_tosca_max->SetMarkerColor(2);
+    gr_HB_V10_tosca_max->Fit("pol3","","",500,4000);
  mg_max->Draw("AP");
  mg_max->SetTitle(htitle);
  mg_max->GetXaxis()->SetTitle("Current");
@@ -179,12 +281,54 @@ Long64_t nlines = T2->ReadFile("Central_zscan_files/tosca_HB-AB-cases.dat","col1
  gr_HB_V10_tosca_effl->SetMarkerStyle(21);
  gr_HB_V10_tosca_effl->SetMarkerSize(1.5);
  gr_HB_V10_tosca_effl->SetMarkerColor(2);
+    gr_HB_V10_tosca_effl->Fit("pol3","","",500,4000);
  mg_effl->Draw("AP");
  mg_effl->SetTitle(htitle);
  mg_effl->GetXaxis()->SetTitle("Current");
  mg_effl->GetYaxis()->SetTitle("Eff Length (cm)");
-
-
+ //
+   vector <double> HB_cur;
+   vector <double> HB_mom;
+   vector <double> HB_ratio;
+   vector <double> HB_kpp_cur;
+   Double_t fac=299.8/(3./180.*3.14159);
+    fit_V10_tosca_int = gr_HB_V10_tosca_int->GetFunction("pol2");
+   for ( Int_t i=0;i<100;i++) {
+     HB_cur.push_back(i*4000./100.);
+     HB_mom.push_back(fac*HB_cur[i]*(fit_V10_tosca_int->Eval(HB_cur[i],0.,0.))/1000.);
+     HB_kpp_cur.push_back(330.05*HB_mom[i]-3.1784*HB_mom[i]*HB_mom[i]+0.4018*HB_mom[i]*HB_mom[i]*HB_mom[i]);
+   }
+    TGraph *gr_HB_mom = new TGraph(HB_cur.size(),&(HB_mom[0]),&(HB_cur[0]));
+    TGraph *gr_HB_cur = new TGraph(HB_cur.size(),&(HB_cur[0]),&(HB_mom[0]));
+    TGraph *gr_KPP_mom = new TGraph(HB_cur.size(),&(HB_mom[0]),&(HB_kpp_cur[0]));
+    TMultiGraph *mg_cur = new TMultiGraph();
+ TLegend *leg_cur = new TLegend(.3,.2,.66,.4);
+ TF1* HB_cur_mom_func;
+ TF1* HB_mom_cur_func;
+ TF1* HB_kpp_cur_mom_func;
+ mg_cur->Add(gr_HB_cur);  
+ leg_cur->AddEntry(gr_HB_mom,"Tosca HB-V10","p");   
+ mg_cur->Add(gr_KPP_mom);  
+ leg_cur->AddEntry(gr_KPP_mom,"KPP","p"); 
+ TF1 *fit_pol = new TF1("fit_pol","[0]*x+[1]*x^2+[2]*x^3"); 
+  fit_pol->SetParameters(329.,-2.5,0.31); 
+  gr_HB_mom->Fit(fit_pol,"","",0.,11.);
+ gr_HB_cur->Fit(fit_pol,"","",0.,4000.);
+ gr_KPP_mom->Fit(fit_pol,"","",0.,4000.);
+ gr_HB_cur->SetLineColor(2);
+ HB_cur_mom_func = gr_HB_mom->GetFunction("fit_pol");
+ HB_mom_cur_func = gr_HB_cur->GetFunction("fit_pol");
+ HB_kpp_cur_mom_func = gr_KPP_mom->GetFunction("fit_pol");
+ cout << " Mom at current = 972.25 = " << HB_mom_cur_func->Eval(972.25,0,0) << endl;
+ cout << " Mom at current = 500 = " << HB_mom_cur_func->Eval(500.,0,0) << endl;
+ cout << " KPP Current at mom = 3.0 = " << HB_kpp_cur_mom_func->Eval(3.,0,0) << endl;
+ cout << " V10 Current at mom = 3.0 = " << HB_cur_mom_func->Eval(3.0,0,0) << endl;
+ TCanvas *can1 = new TCanvas("can1","Momentum ",800,800);
+   can1->Divide(1,2);
+   can1->cd(1);
+   gr_HB_cur->Draw();
+   can1->cd(2);
+   gr_HB_mom->Draw();
 //
 }
 //
@@ -287,7 +431,7 @@ void plot_zscan_results() {
  gStyle->SetTitleOffset(.8,"X");
  gStyle->SetLabelSize(0.04,"XY");
  gStyle->SetTitleSize(0.06,"XY");
- gStyle->SetPadLeftMargin(0.05);
+ gStyle->SetPadLeftMargin(0.1);
  TCanvas *can = new TCanvas("can","Int Bdl ",800,800);
    can->Divide(1,2);
     can->cd(1);
@@ -791,7 +935,7 @@ TCanvas *cneg = new TCanvas("cneg","HB Neg B/I versus I",800,800);
  neg_field_up_fit = grnep_up->GetFunction("pol3");
  vector<double> HB_neg_up_frac;
  Double_t par1=neg_field_up_fit->GetParameter(0);
- for (int i=0;i<HB_neg_up_current.size();i++) {
+ for (UInt_t i=0;i<HB_neg_up_current.size();i++) {
    HB_neg_up_resid.push_back((neg_field_up_fit->Eval(HB_neg_up_current[i],0.,0.)-HB_neg_up_bi[i])/HB_neg_up_bi[i]);
    HB_neg_up_frac.push_back(100.*(1.-HB_neg_up_bi[i]/par1));
  }
@@ -832,7 +976,7 @@ TCanvas *cpos = new TCanvas("cpos","HB Pos B/I versus I",800,800);
  pos_field_up_fit = grposup->GetFunction("pol3");
  vector<double> HB_pos_up_frac;
  Double_t parpos=pos_field_up_fit->GetParameter(0);
- for (int i=0;i<HB_pos_up_current.size();i++) {
+ for (UInt_t i=0;i<HB_pos_up_current.size();i++) {
    //cout << pos_field_up_fit->Eval(pos_up_cur[i],0.,0.) << " " << pos_up_field[i] << endl;
    HB_pos_up_resid.push_back((pos_field_up_fit->Eval(HB_pos_up_current[i],0.,0.)-HB_pos_up_bi[i])/HB_pos_up_bi[i]);
    HB_pos_up_frac.push_back(100.*(1.-HB_pos_up_bi[i]/parpos));
@@ -1102,7 +1246,7 @@ void Set_probe(vector<double> &x ,vector<double> &y ) {
    yvec[i]=y[i]/10000.;
  }
  //
- Double_t fit_val;
+ Double_t fit_val=0.;
 TCanvas *cprobe = new TCanvas("cprobe","Lakeshore probe B versus B_corr",800,800);
  cprobe->Divide(1,2);
  cprobe->cd(1);
